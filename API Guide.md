@@ -16,9 +16,9 @@ Bad response: 403 Unauthorized <br>
 Request data: <br> 
 ```{"token": "<loginToken>", "oldPassword" : "<current password>", "newPassword" : "<new password>"}``` <br>
 Good response: 200 OK <br>
-```{"success": true, "token": "<loginToken>"}``` <br>
+```{"token": "<loginToken>"}``` <br>
 Bad response: 403 Unauthorized <br>
-```{"success": false, "reason": "<reason string>"}``` <br>
+```{"reason": "<reason string>"}``` <br>
 	
 ### GET $BASE_URL/user/getInfo
 Request data: <br>
@@ -26,7 +26,7 @@ Request data: <br>
 Good response: 200 OK <br>
 ```{"username": "<username>","nickname": "<nickname>"}``` <br>
 Bad response: 403 Unauthorized <br>
-```{"success": false, "reason": "<reason string>"}``` <br>
+```{"reason": "<reason string>"}``` <br>
 	
 ### POST $BASE_URL/user/setInfo
 Request data: <br>
