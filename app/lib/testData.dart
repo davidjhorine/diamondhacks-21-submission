@@ -60,3 +60,30 @@ Map fakeCompetitors = {
     },
   ]
 };
+
+Map fakeTrips = {
+  "data": [
+    {
+      "id": 0,
+      "tripType": "car",
+      "duration": 10,
+    },
+    {
+      "id": 1,
+      "tripType": "bike",
+      "duration": 20,
+    },
+    {
+      "id": 2,
+      "tripType": "public",
+      "duration": 15,
+    }
+  ]
+};
+
+Map fakeStats = {
+  "score": 57,
+  "carUsage": 20,
+  "publicUsage": 50,
+  "bikeUsage": 30,
+};

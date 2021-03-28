@@ -1,10 +1,15 @@
 import 'package:app/leaderboardPerson.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/material.dart'; // This library provides all the material design styled widgets
 import './mainHeaderWidget.dart';
 import './leaderboardPerson.dart';
 import './addNewCompetitor.dart';
 import './ourColors.dart' as ourColors;
 import 'testData.dart' as testData;
+import './tripsView.dart';
+import './tripEdit.dart';
+import './settings.dart';
+import './loginPage.dart';
 
 void main() {
   // Because there's so little that has to go into MaterialApp, the code is cleaner just keeping it here instead of putting it in a new class
@@ -23,11 +28,12 @@ class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
 }
-p
+
 class _HomePageState extends State<HomePage> {
   var _navState = 'home';
   var _returnedNavState;
   int bottomTabIndex = 0;
+  int editId = -1;
 
   void _goHome() {
     setState(() {
@@ -53,6 +59,18 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void _editTrip(int id) {
+    editId = id;
+    setState(() {
+      _navState = 'editTrip';
+    });
+  }
+
+  void _signIn() {
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => LoginPage()));
+  }
+
   void _bottomTabChangeHandler(int index) {
     if (index == 0) {
       _goHome();
@@ -73,6 +91,14 @@ class _HomePageState extends State<HomePage> {
       _returnedNavState = AddNewCompetitor(
         goHome: _goHome,
       );
+    } else if (_navState == 'trips') {
+      _returnedNavState = TripsView(
+        edit: _editTrip,
+      );
+    } else if (_navState == 'editTrip') {
+      _returnedNavState = EditTrip(editId: editId, goBackToLists: _viewTrips);
+    } else if (_navState == 'settings') {
+      _returnedNavState = SettingsPage();
     }
 
     return (Scaffold(
@@ -94,6 +120,7 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
+// ignore: must_be_immutable
 class MainPage extends StatefulWidget {
   Function addNew;
   MainPage({this.addNew});
@@ -112,7 +139,9 @@ class _MainPageState extends State<MainPage> {
     (widget.addNew == null) ? print('null!') : print('not null');
     return Column(
       children: [
-        HeaderWidget(),
+        HeaderWidget(
+          stats: testData.fakeStats,
+        ),
         Container(
             margin: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
             child: Row(

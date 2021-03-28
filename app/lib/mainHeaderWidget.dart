@@ -4,6 +4,8 @@ import './ourColors.dart' as ourColors;
 import 'package:pie_chart/pie_chart.dart';
 
 class HeaderWidget extends StatefulWidget {
+  Map stats;
+  HeaderWidget({this.stats});
   @override
   _HeaderWidgetState createState() => _HeaderWidgetState();
 }
@@ -28,12 +30,12 @@ class _HeaderWidgetState extends State<HeaderWidget> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _AnimatedHeaderGraph(),
+          _AnimatedHeaderGraph(stats: widget.stats),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '33% Car',
+                widget.stats['carUsage'].toString() + '% Car',
                 style: TextStyle(
                     color: ourColors.red,
                     fontSize: 20,
@@ -41,7 +43,7 @@ class _HeaderWidgetState extends State<HeaderWidget> {
                     shadows: [ourColors.textShadow]),
               ),
               Text(
-                '50% Public',
+                widget.stats['publicUsage'].toString() + '% Public',
                 style: TextStyle(
                     color: ourColors.blue,
                     fontSize: 20,
@@ -49,7 +51,7 @@ class _HeaderWidgetState extends State<HeaderWidget> {
                     shadows: [ourColors.textShadow]),
               ),
               Text(
-                '17% Bike',
+                widget.stats['bikeUsage'].toString() + '% Bike',
                 style: TextStyle(
                     color: ourColors.green,
                     fontSize: 20,
@@ -65,24 +67,26 @@ class _HeaderWidgetState extends State<HeaderWidget> {
 }
 
 class _AnimatedHeaderGraph extends StatefulWidget {
+  Map stats;
+  _AnimatedHeaderGraph({this.stats});
   @override
   __AnimatedHeaderGraphState createState() => __AnimatedHeaderGraphState();
 }
 
 class __AnimatedHeaderGraphState extends State<_AnimatedHeaderGraph> {
-  final Map<String, double> exampleDatamap = {
-    "Car": 33,
-    "Public": 50,
-    "Bike": 17,
-  };
   @override
   Widget build(BuildContext context) {
+    final Map<String, double> pieData = {
+      "Car": widget.stats['carUsage'].toDouble(),
+      "Public": widget.stats['publicUsage'].toDouble(),
+      "Bike": widget.stats['carUsage'].toDouble(),
+    };
     return Stack(
       alignment: Alignment.center,
       children: [
         PieChart(
           colorList: [ourColors.red, ourColors.blue, ourColors.green],
-          dataMap: exampleDatamap,
+          dataMap: pieData,
           legendOptions: LegendOptions(showLegends: false),
           chartRadius: 100,
           chartValuesOptions: ChartValuesOptions(showChartValues: false),
@@ -100,7 +104,7 @@ class __AnimatedHeaderGraphState extends State<_AnimatedHeaderGraph> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  '78',
+                  widget.stats['score'].toString(),
                   textAlign: TextAlign.center,
                   style: TextStyle(
                       fontSize: 24,
