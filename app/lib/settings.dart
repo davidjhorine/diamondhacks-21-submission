@@ -22,10 +22,12 @@ class SettingsPage extends StatelessWidget {
           TextField(
             decoration: InputDecoration(hintText: 'New Password'),
           ),
-          ElevatedButton(onPressed: null, child: Text('Change Password')),
+          ElevatedButton(
+              onPressed: () => print('yes'), child: Text('Change Password')),
           Text('\n\nWARNING! The "delete account" button is permanant!',
               style: TextStyle(color: ourColors.red, fontSize: 20)),
-          ElevatedButton(onPressed: null, child: Text('Delete Account')),
+          ElevatedButton(
+              onPressed: () => print('yes'), child: Text('Delete Account')),
         ],
       ),
     );

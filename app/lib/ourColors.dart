@@ -8,8 +8,8 @@ const bgLight = Color(0xFFC5BCB4);
 const bgDark = Color(0xFF856A6A);
 
 // These colors will be used for the graph and anytime a bright accent is needed
-const red = Color(0xFF8D3948);
-const green = Color(0xFF7BA381);
+const red = Color(0xFFC46E7E);
+const green = Color(0xFFABC4AF);
 const blue = Color(0xFF83B2EC);
 
 // These's aren't colors, but close enough that they'll go here anyways

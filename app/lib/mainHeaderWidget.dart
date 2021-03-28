@@ -20,7 +20,14 @@ class _HeaderWidgetState extends State<HeaderWidget> {
           image: AssetImage('put thing here'), //TODO: Add correct image
           fit: BoxFit.cover,
         ),*/
-          color: Colors.blue,
+          color: ourColors.bgDark,
+          image: DecorationImage(
+              image: AssetImage('images/BikeHeader.png'),
+              fit: BoxFit.cover,
+              colorFilter: ColorFilter.mode(
+                  ourColors.bgDark.withOpacity(.8),
+                  BlendMode
+                      .darken)), //This image causes readability to suffer too much
           boxShadow: [
             BoxShadow(
               color: Colors.black26,

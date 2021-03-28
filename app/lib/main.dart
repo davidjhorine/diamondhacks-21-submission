@@ -82,8 +82,17 @@ class _HomePageState extends State<HomePage> {
     bottomTabIndex = index;
   }
 
+  Future<void> _loginCheck() async {
+    final storage = new FlutterSecureStorage();
+    String token = await storage.read(key: 'token');
+    if (token == null) {
+      _signIn();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    //_loginCheck(); //Because this app will unfortunately be offline for the hackathon and serve only as a demo of the UI, this function is useless
     // This bit of logic handles switching screen in the context of the original scaffold
     if (_navState == 'home') {
       _returnedNavState = MainPage(addNew: _addNew);

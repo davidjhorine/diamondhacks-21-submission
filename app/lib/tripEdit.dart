@@ -11,6 +11,7 @@ class EditTrip extends StatelessWidget {
   Widget build(BuildContext context) {
     String value = 'car';
     return Container(
+      margin: EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
