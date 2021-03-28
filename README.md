@@ -1,4 +1,4 @@
-# Diamonhacks 21 Submission
-## Created by Xarvatium, David J Horine, and Marshall Pearson
+# Diamondhacks 21 Submission
+## Created by Christopher Fore, David J Horine, and Marshall Pearson
 
 
