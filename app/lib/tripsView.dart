@@ -75,7 +75,6 @@ class TripItem extends StatelessWidget {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: ourColors.bgLight,
-                    // TODO: Add image based on travel type
                   )),
               Text('  ' + this.duration.toString() + " minutes: ",
                   style: TextStyle(

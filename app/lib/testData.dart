@@ -3,60 +3,60 @@
 Map fakeCompetitors = {
   "competitors": [
     {
-      "username": "JohnSmith123",
-      "score": 23,
-      "carUsage": 25,
-      "publicUsage": 45,
+      "username": "John",
+      "score": 94,
+      "carUsage": 10,
+      "publicUsage": 60,
       "bikeUsage": 30
     },
     {
-      "username": "F0reFunctionC@lc",
+      "username": "George",
       "score": 83,
       "carUsage": 2,
-      "publicUsage": 10,
-      "bikeUsage": 88
+      "publicUsage": 78,
+      "bikeUsage": 20
     },
     {
-      "username": "F0reFunctionC@lc",
-      "score": 83,
-      "carUsage": 2,
-      "publicUsage": 10,
-      "bikeUsage": 88
+      "username": "Rogers",
+      "score": 78,
+      "carUsage": 20,
+      "publicUsage": 20,
+      "bikeUsage": 60
     },
     {
-      "username": "F0reFunctionC@lc",
-      "score": 83,
-      "carUsage": 2,
-      "publicUsage": 10,
-      "bikeUsage": 88
+      "username": "Janice",
+      "score": 70,
+      "carUsage": 25,
+      "publicUsage": 25,
+      "bikeUsage": 50
     },
     {
-      "username": "F0reFunctionC@lc",
-      "score": 83,
-      "carUsage": 2,
-      "publicUsage": 10,
-      "bikeUsage": 88
+      "username": "Casey",
+      "score": 63,
+      "carUsage": 40,
+      "publicUsage": 40,
+      "bikeUsage": 20
     },
     {
-      "username": "F0reFunctionC@lc",
-      "score": 83,
-      "carUsage": 2,
-      "publicUsage": 10,
-      "bikeUsage": 88
+      "username": "Billy",
+      "score": 45,
+      "carUsage": 50,
+      "publicUsage": 30,
+      "bikeUsage": 20
     },
     {
-      "username": "F0reFunctionC@lc",
-      "score": 83,
-      "carUsage": 2,
+      "username": "Joe",
+      "score": 36,
+      "carUsage": 60,
       "publicUsage": 10,
-      "bikeUsage": 88
+      "bikeUsage": 30
     },
     {
-      "username": "F0reFunctionC@lc",
-      "score": 83,
-      "carUsage": 2,
-      "publicUsage": 10,
-      "bikeUsage": 88
+      "username": "Craig",
+      "score": 14,
+      "carUsage": 75,
+      "publicUsage": 15,
+      "bikeUsage": 10
     },
   ]
 };

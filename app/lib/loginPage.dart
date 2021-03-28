@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -31,6 +33,13 @@ class _LoginPageState extends State<LoginPage> {
         )),
       ));
     } else if (state == 1) {
+      /*void _sendRegister() async {
+        final storage = FlutterSecureStorage();
+        var response = await http.get(Uri.parse(ourColors.baseURL + ""))
+      }*/ //Unfortunately, due to limited time requirements and extra requirements for how requests are made compared to most frameworks, this app will stay offline for the duration of the hackathon
+
+      final unController = TextEditingController();
+      final pwController = TextEditingController();
       return (Scaffold(
         appBar: AppBar(
           title: Text('Carbon Points'),
@@ -40,9 +49,11 @@ class _LoginPageState extends State<LoginPage> {
           children: [
             TextField(
               decoration: InputDecoration(hintText: 'Username'),
+              controller: unController,
             ),
             TextField(
               decoration: InputDecoration(hintText: 'Password'),
+              controller: pwController,
             ),
             ElevatedButton(onPressed: null, child: Text('Sign Up')),
           ],
