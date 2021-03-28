@@ -1,0 +1,122 @@
+// This widget will be used to display the graph and percentage header on the main screen
+import 'package:flutter/material.dart';
+import './ourColors.dart' as ourColors;
+import 'package:pie_chart/pie_chart.dart';
+
+class HeaderWidget extends StatefulWidget {
+  @override
+  _HeaderWidgetState createState() => _HeaderWidgetState();
+}
+
+class _HeaderWidgetState extends State<HeaderWidget> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+      decoration: BoxDecoration(
+          /*image: DecorationImage(
+          image: AssetImage('put thing here'), //TODO: Add correct image
+          fit: BoxFit.cover,
+        ),*/
+          color: Colors.blue,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 20,
+            )
+          ]),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _AnimatedHeaderGraph(),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '33% Car',
+                style: TextStyle(
+                    color: ourColors.red,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    shadows: [ourColors.textShadow]),
+              ),
+              Text(
+                '50% Public',
+                style: TextStyle(
+                    color: ourColors.blue,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    shadows: [ourColors.textShadow]),
+              ),
+              Text(
+                '17% Bike',
+                style: TextStyle(
+                    color: ourColors.green,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    shadows: [ourColors.textShadow]),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AnimatedHeaderGraph extends StatefulWidget {
+  @override
+  __AnimatedHeaderGraphState createState() => __AnimatedHeaderGraphState();
+}
+
+class __AnimatedHeaderGraphState extends State<_AnimatedHeaderGraph> {
+  final Map<String, double> exampleDatamap = {
+    "Car": 33,
+    "Public": 50,
+    "Bike": 17,
+  };
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        PieChart(
+          colorList: [ourColors.red, ourColors.blue, ourColors.green],
+          dataMap: exampleDatamap,
+          legendOptions: LegendOptions(showLegends: false),
+          chartRadius: 100,
+          chartValuesOptions: ChartValuesOptions(showChartValues: false),
+        ),
+        Center(
+          child: Container(
+            decoration: BoxDecoration(
+              color: ourColors.bgDark,
+              shape: BoxShape.circle,
+            ),
+            width: 90,
+            height: 90,
+            child: Center(
+                child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  '78',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontSize: 24,
+                      color: ourColors.textLight,
+                      fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  'points this month',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 12, color: ourColors.textLight),
+                ),
+              ],
+            )),
+          ),
+        )
+      ],
+    );
+  }
+}
