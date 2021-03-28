@@ -28,18 +28,6 @@ def makeToken(username, password):
     token = secondHash + "." + encodedUserS
     return token
 
-
-
-# Root directory
-@app.route('/')
-def index():
-  return jsonify({"test data": "true"})
-
-# Test template
-@app.route('/blogs')
-def blog():
-    return render_template('test.html')
-
 hashpass = None
 
 # Register route
@@ -131,14 +119,7 @@ def api_getInfo():
     token = reqdict['token']
     users = mongo.db.users.find_one({"token": token})
     return jsonify({"username" : users['username']})
-
-# TODO API to Change Username
-'''
-# Set info on authed User 
-@app.route('/user/setInfo', methods=['POST'])
-def api_setInfo():
-    pass
-'''
+    
 
 # Delete authed User 
 @app.route('/user/delete', methods=['POST'])
