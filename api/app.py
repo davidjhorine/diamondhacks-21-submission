@@ -1,28 +1,42 @@
-from flask import Flask, render_template, redirect, request, jsonify
+from flask import Flask, render_template, redirect, request, jsonify, make_response
 from models import UserModel, db, login
 from flask_security import login_required
 from flask_login import current_user, login_user, logout_user
+import json
+import base64
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_pymongo import PyMongo
+
 
 app = Flask(__name__)
 
-app.secret_key = b'&t4@Q'
-
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db.init_app(app)
+app.config["MONGO_URI"] = "mongodb://localhost:27017/users"
+mongo = PyMongo(app)
+collection_users = mongo.db['users']
+collection_data = mongo.db['data']
+collection_competitors = mongo.db['competitors']
 
 login.init_app(app)
 login.login_view = 'login'
+app.secret_key = b'&t4@Q'
 
-@app.before_first_request
-def create_table():
-    db.create_all()
+def makeToken(username, password):
+    # Get the hashes for the passwords
+    firstHash = password
+    secondHash = generate_password_hash(firstHash, "sha256")
+
+    # Encode the username into Base64
+    encodedUserB = base64.b64encode(username.encode("utf-8"))
+    encodedUserS = str(encodedUserB, "utf-8")
+    token = secondHash + "." + encodedUserS
+    return token
 
 
-# root
-@app.route("/")
+
+# Root directory
+@app.route('/')
 def index():
-    return "placeholder"
+  return jsonify({"test data": "true"})
 
 # Test template
 @app.route('/blogs')
@@ -30,82 +44,134 @@ def index():
 def blog():
     return render_template('test.html')
 
-# Register route
-@app.route('/register', methods=['POST', 'GET'])
-def register():
-    if current_user.is_authenticated:
-        return redirect('/blogs')
-    
-    if request.method == 'POST':
-        email = request.form['email']
-        username = request.form['username']
-        password = request.form['password']
+hashpass = None
 
-        if UserModel.query.filter_by(email=email).first():
-            return ('Email already present')
-        
-        user = UserModel(email=email, username=username)
-        user.set_password(password)
-        db.session.add(user)
-        db.session.commit()
-        return redirect('/login')
-    
-    return render_template('register.html')
+# Register route
+@app.route('/user/create', methods=['POST'])
+def register():    
+    global hashpass
+    request.get_data()
+    reqdict = json.loads(request.data.decode('utf-8'))
+    token = makeToken(reqdict['username'], reqdict['password'])
+    print(f"Your token is {token}")
+    mongo.db.users.insert_one({
+        'username':reqdict['username'], 
+        'password':(reqdict['password']),
+        'token':token
+        })
+    mongo.db.data.insert_one({
+        'username':reqdict['username'],
+        'parentToken':token
+        })
+    mongo.db.competitors.insert_one({
+        'username':reqdict['username'], 
+        'parentToken':token
+        })
+    return jsonify({
+        'username':reqdict['username'],
+        'token':token
+        })
 
 
 # USER / AUTH API Requests
 # These are requests that retain directly to administering users
 
 # Login 
-@app.route('/login', methods = ['POST', 'GET'])
+@app.route('/auth/login', methods = ['GET', 'POST'])
 def login():
-    # Checks for if the user is already authenticated
-    if current_user.is_authenticated:
-        return redirect('/blogs')
-    
-    # Checks for if the method of request is a POST
-    if request.method == "POST":
-        email = request.form['email']
-        user = UserModel.query.filter_by(email = email).first()
-        if user is not None and user.check_password(request.form['password']):
-            login_user(user)
-            return redirect('/blogs')
-    return render_template('login.html')
+    global hashpass
+    request.get_data()
+    reqdict = json.loads(request.data.decode('utf-8'))
+    username = reqdict['username']
+    users = collection_users.find_one({"username":username})
+    print(reqdict['username'])
+    print(users['username'])
+    print(hashpass)
+    print(users['password'])
+    if reqdict['username'] == users['username'] and reqdict['password'] == users['password']:
+        try:
+            username = users['username']
+            password = users['password']
+            token = makeToken(username, password)
+            filter = { 'username': username }
+            newValues = { "$set": {"token": token }}
 
-# Logout route
-@app.route('/logout')
-def logout():
-    logout_user()
-    return redirect('/blogs')
+            collection = mongo.db.users
+            
+            collection.update_one(filter, newValues)
+            cursor = collection.find()
+            for record in cursor:
+                print(record)
+            print("Token added successfully")
+            return make_response(jsonify({'token': token}), 200)
+        except:
+            print(f'An Error has occurred when logging in')
+            return make_response(jsonify({"reason": "An Unknown error has occurred"}), 403)
+        else:
+            print("login successful")
 
-# Set Password for authed user
+    return make_response(jsonify({"reason": "Forbidden"}), 403)
+
+# Change Password for authed user
 @app.route('/auth/setPassword', methods=['POST'])
 def api_setPassword():
-    pass
+    request.get_data()
+    reqdict = json.loads(request.data.decode('utf-8'))
+    token = reqdict['token']
+    users = mongo.db.users.find_one({"token":token})
+    print(users)
+    try:
+        if users['password'] == reqdict['oldPassword']:
+            newPass = { "$set": { "password": reqdict['newPassword'] } }
+            mongo.db.users.update_one(users, newPass)
+            return make_response(jsonify({'token': reqdict['token']}), 200)
+        else:
+            return make_response(jsonify({"reason": "Forbidden"}), 403)
+    except SyntaxError:
+        print(f"{reqdict['token']} \n ")
+        return make_response(jsonify({"reason": "Token not recognized"}), 403)
+        
 
-@app.route('/users/<user>')
-def userGreet(user):
-    return "%s" % user
+@app.route('/users/getInfo')
+@app.route('/users/getInfo/<token>')
+def getInfo(username=None):
+    if not username:
+      error = jsonify(Error='403 Unauthorized')
+      return make_response(error, 403)
+    
+    return jsonify(
+      id=username,
+      name="Placeholder",
+    )
 
 # Get info on authed User 
 @app.route('/user/getInfo', methods=['GET'])
 def api_getInfo():
-    pass
+    request.get_data()
+    reqdict = json.loads(request.data.decode('utf-8'))
+    token = reqdict['token']
+    users = mongo.db.users.find_one({"token": token})
+    return jsonify({"username" : users['username']})
 
+# TODO API to Change Username
+'''
 # Set info on authed User 
-@app.route('/user/getInfo', methods=['POST'])
+@app.route('/user/setInfo', methods=['POST'])
 def api_setInfo():
     pass
-
-# Create User 
-@app.route('/user/create', methods=['POST'])
-def api_createUser():
-    pass
+'''
 
 # Delete authed User 
 @app.route('/user/delete', methods=['POST'])
 def api_deleteUser():
-    pass
+    request.get_data()
+    reqdict = json.loads(request.data.decode('utf-8'))
+    token = reqdict['token']
+    users = mongo.db.users.find_one({"token": token})
+    collection_users.delete_one({"token": token})
+    collection_data.delete_one({"parentToken": token})
+    collection_competitors.delete_one({"parentToken": token})
+    return '', 200
 
 # DATA MANAGEMENT Requests
 # All of these requests involve managing the database as a whole
@@ -113,7 +179,18 @@ def api_deleteUser():
 # Add data from trip for authed user
 @app.route('/data/add', methods=['POST'])
 def api_addData():
-    pass
+    request.get_data()
+    reqdict = json.loads(request.data.decode('utf-8'))
+    col = mongo.db.users['data']
+    
+    token = reqdict['token']
+    tripType = reqdict['tripType']
+    duration = reqdict['duration']
+    newID = mongo.db.col.count_documents({})
+    print(newID)
+    insertDict = {"tripID": newID}
+
+    return make_response(jsonify({"tripID": newID}))
 
 # Gets authed users trips 
 @app.route('/data/get', methods=['GET'])
@@ -159,5 +236,5 @@ def api_stats():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=25565, debug = True)
 
