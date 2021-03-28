@@ -123,18 +123,6 @@ def api_setPassword():
         return make_response(jsonify({"reason": "Token not recognized"}), 403)
         
 
-@app.route('/users/getInfo')
-@app.route('/users/getInfo/<token>')
-def getInfo(username=None):
-    if not username:
-      error = jsonify(Error='403 Unauthorized')
-      return make_response(error, 403)
-    
-    return jsonify(
-      id=username,
-      name="Placeholder",
-    )
-
 # Get info on authed User 
 @app.route('/user/getInfo', methods=['GET'])
 def api_getInfo():
@@ -180,6 +168,21 @@ def api_addData():
         "tripType":tripType,
         "duration":duration
     })
+    if tripType == 'bike':
+        collection_users.update_one(
+            {'token':token},
+            {'$inc': {'totalBike': 20}}
+        )
+    if tripType == 'car':
+        collection_users.update_one(
+            {'token':token},
+            {'$inc': {'totalCar': 20}}
+        )
+    if tripType == 'public':
+        collection_users.update_one(
+            {'token':token},
+            {'$inc': {'totalPublic': 20}}
+        )
     targetTrip = collection_data.find_one({
         "parentToken":token,
         "tripType":tripType,
@@ -265,7 +268,11 @@ def api_removeCompetitor():
 # STATS Request
 @app.route('/stats', methods=['GET'])
 def api_stats():
-    return True
+    request.get_data()
+    reqdict = json.loads(request.data.decode('utf-8'))
+    token = reqdict['token']
+    return str(collection_users.find_one({'token':token}))
+
 
 
 
