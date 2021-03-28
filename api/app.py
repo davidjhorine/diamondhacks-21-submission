@@ -15,7 +15,7 @@ collection_users = mongo.db['users']
 collection_data = mongo.db['data']
 collection_competitors = mongo.db['competitors']
 
-app.secret_key = b'&t4@Q'
+app.secret_key = b'&t4@Q' # This is not an API key leak, it is just a temporary thing we use to run the backend, in production it will be moved to a .env
 
 def makeToken(username, password):
     # Get the hashes for the passwords
@@ -119,7 +119,7 @@ def api_getInfo():
     token = reqdict['token']
     users = mongo.db.users.find_one({"token": token})
     return jsonify({"username" : users['username']})
-    
+
 
 # Delete authed User 
 @app.route('/user/delete', methods=['POST'])
