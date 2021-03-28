@@ -1,11 +1,10 @@
 from flask import Flask, render_template, redirect, request, jsonify, make_response
-from models import UserModel, db, login
-from flask_security import login_required
-from flask_login import current_user, login_user, logout_user
 import json
 import base64
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_pymongo import PyMongo
+from bson.objectid import ObjectId
+
 
 
 app = Flask(__name__)
@@ -16,8 +15,6 @@ collection_users = mongo.db['users']
 collection_data = mongo.db['data']
 collection_competitors = mongo.db['competitors']
 
-login.init_app(app)
-login.login_view = 'login'
 app.secret_key = b'&t4@Q'
 
 def makeToken(username, password):
@@ -40,7 +37,6 @@ def index():
 
 # Test template
 @app.route('/blogs')
-@login_required
 def blog():
     return render_template('test.html')
 
@@ -59,12 +55,7 @@ def register():
         'password':(reqdict['password']),
         'token':token
         })
-    mongo.db.data.insert_one({
-        'username':reqdict['username'],
-        'parentToken':token
-        })
-    mongo.db.competitors.insert_one({
-        'username':reqdict['username'], 
+    mongo.db.competitors.insert_one({ 
         'parentToken':token
         })
     return jsonify({
@@ -169,7 +160,7 @@ def api_deleteUser():
     token = reqdict['token']
     users = mongo.db.users.find_one({"token": token})
     collection_users.delete_one({"token": token})
-    collection_data.delete_one({"parentToken": token})
+    collection_data.delete_many({"parentToken": token})
     collection_competitors.delete_one({"parentToken": token})
     return '', 200
 
@@ -181,49 +172,92 @@ def api_deleteUser():
 def api_addData():
     request.get_data()
     reqdict = json.loads(request.data.decode('utf-8'))
-    col = mongo.db.users['data']
-    
     token = reqdict['token']
     tripType = reqdict['tripType']
     duration = reqdict['duration']
-    newID = mongo.db.col.count_documents({})
-    print(newID)
-    insertDict = {"tripID": newID}
-
-    return make_response(jsonify({"tripID": newID}))
+    collection_data.insert_one({
+        "parentToken":token,
+        "tripType":tripType,
+        "duration":duration
+    })
+    targetTrip = collection_data.find_one({
+        "parentToken":token,
+        "tripType":tripType,
+        "duration":duration
+    })
+    return make_response(jsonify({"id":str(targetTrip['_id'])}))
 
 # Gets authed users trips 
 @app.route('/data/get', methods=['GET'])
 def api_getData():
-    pass
+    request.get_data()
+    reqdict = json.loads(request.data.decode('utf-8'))
+    token = reqdict['token']
+
+    entries = collection_data.find({'parentToken':token})
+    result = []
+    for entry in entries:
+        result.append(entry)
+    return jsonify({'data':(str(result))})
 
 # Edit data from trip for authed user
 @app.route('/data/edit', methods=['POST'])
 def api_editData():
-    pass
+    request.get_data()
+    reqdict = json.loads(request.data.decode('utf-8'))
+    token = reqdict['token']
+    if token == None:
+        return jsonify({'reason':'Forbidden'}), 403 
+    trip = collection_data.find({'parentToken':token, '_id':reqdict['id']})
+    collection_data.update_one(trip, {'tripType':reqdict['tripType'], 'duration':reqdict['duration']})
 
 # Delete data from trip for authed user
-#@app.route('/data/delete', methods=['POST'])
-#def api_deleteData():
-#    pass
+@app.route('/data/delete', methods=['POST'])
+def api_deleteData():
+    request.get_data()
+    reqdict = json.loads(request.data.decode('utf-8'))
+    token = reqdict['token']
+    print(token)
+    if token == None:
+        return jsonify({'reason':'Forbidden'}), 403 
+    targetObj = ObjectId(reqdict['id'])
+    print(targetObj)
+    print(type(targetObj))
+    collection_data.delete_one({'_id':targetObj})
+    return {}, 200
 
 # COMPETITORS Requests
 # Get info on competitors to compare locally
 
+
+
 # List competitors for authed user
-@app.route('/competitors/listd', methods=['GET'])
+@app.route('/competitors/list', methods=['GET'])
 def api_listCompetitors():
     pass
 
 # Add competitor for authed user
 @app.route('/competitors/add', methods=['POST'])
 def api_addCompetitor():
-    pass
+    request.get_data()
+    reqdict = json.loads(request.data.decode('utf-8'))
+    token = reqdict['token']
+    collection_competitors.update_one(
+        {"parentToken":token}, 
+        {"$set": {"username":reqdict['username']}})
+    return {}, 200
 
 # Remove competitor for authed user
 @app.route('/competitors/remove', methods=['POST'])
 def api_removeCompetitor():
-    pass
+    request.get_data()
+    reqdict = json.loads(request.data.decode('utf-8'))
+    token = reqdict['token']
+    collection_competitors.update_one(
+        {"parentToken":token}, 
+        {"$unset": {"username":reqdict['username']}})
+    return {}, 200
+
 
 # MISCELLANEOUS Requests
 # This is for all requests that didn't fit into a certain category
